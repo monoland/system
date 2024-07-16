@@ -8,10 +8,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Module\System\LaravelPulse\PulseUsage;
-use Module\System\LaravelPulse\PulseExceptions;
-use Module\System\LaravelPulse\PulseSlowQueries;
 use Module\System\Requests\LogoutOtherDeviceRequest;
 
 class DashboardController extends Controller
@@ -39,11 +35,11 @@ class DashboardController extends Controller
     {
         return response()->json([
             'record' => [],
-            'pulse' =>  [
-                'exceptions' => (new PulseExceptions())->fetch(),
-                'slow_query' => (new PulseSlowQueries())->fetch(),
-                'usages' => (new PulseUsage())->fetch(),
-            ],
+            // 'pulse' =>  [
+            //     'exceptions' => (new PulseExceptions())->fetch(),
+            //     'slow_query' => (new PulseSlowQueries())->fetch(),
+            //     'usages' => (new PulseUsage())->fetch(),
+            // ],
         ], 200);
     }
 

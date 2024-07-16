@@ -8,6 +8,7 @@ use Module\System\Traits\HasMeta;
 use Illuminate\Support\Facades\DB;
 use Module\System\Traits\Filterable;
 use Module\System\Traits\Searchable;
+use Illuminate\Support\Facades\Cache;
 use Module\System\Models\SystemModule;
 use Module\System\Traits\HasPageSetup;
 use Illuminate\Database\Eloquent\Model;
@@ -69,7 +70,7 @@ class SystemPage extends Model
      */
     public static function getPageTitle(Request $request, $slug): string | null
     {
-        return cache()->remember(implode("_", $request->segments()), now()->addMinute(5),function () use ($request) {
+        return Cache::remember(implode("_", $request->segments()), now()->addMinute(5),function () use ($request) {
             return "Module:" . SystemModule::find($request->segment(4))->name;
         });
     }

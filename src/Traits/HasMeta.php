@@ -2,6 +2,7 @@
 
 namespace Module\System\Traits;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
 trait HasMeta
@@ -39,7 +40,7 @@ trait HasMeta
      */
     public function __set($key, $value)
     {
-        $columns = cache()->remember($this->getTable(), 86400, function () {
+        $columns = Cache::remember($this->getTable(), 86400, function () {
             return Schema::connection($this->connection)->getColumnListing($this->getTable());
         });
 

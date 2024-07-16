@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Module\System\Traits\Filterable;
 use Module\System\Traits\Notifiable;
 use Module\System\Traits\Searchable;
+use Illuminate\Support\Facades\Cache;
 use Module\System\Traits\Impersonate;
 use Module\System\Traits\HasPageSetup;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -196,11 +197,11 @@ class SystemUser extends Authenticatable
                     'slug' => $page->slug,
                     'icon' => $page->icon,
                     'path' => $page->path,
-                    'side' => $page->side,
-                    'dock' => $page->dock,
+                    'side' => (bool) $page->side,
+                    'dock' => (bool) $page->dock,
                     'parent' => $page->parent_id === null,
                     'parent_path' => optional($page->parent)->slug,
-                    'enabled' => $page->enabled,
+                    'enabled' => (bool) $page->enabled,
                     'order' => $page->_lft
                 ]);
             }
@@ -240,7 +241,7 @@ class SystemUser extends Authenticatable
      */
     public function getModules(): array
     {
-        return cache()->rememberForever($this->id . '-modules', function () {
+        return Cache::rememberForever($this->id . '-modules', function () {
             $modules = with($this->licenses()->with([
                 'ability',
                 'ability.pages',
@@ -258,8 +259,8 @@ class SystemUser extends Authenticatable
                         'color' => $module->color,
                         'domain' => $module->domain,
                         'prefix' => $module->prefix,
-                        'desktop' => $module->desktop,
-                        'mobile' => $module->mobile,
+                        'desktop' => (bool) $module->desktop,
+                        'mobile' => (bool) $module->mobile,
                         'order' => $module->_lft,
                         'pages' => $this->getLicensePages($license->ability)
                     ]);
@@ -291,7 +292,7 @@ class SystemUser extends Authenticatable
      */
     protected function getUserAbilities(): array
     {
-        return cache()->rememberForever($this->id . '-abilities', function () {
+        return Cache::rememberForever($this->id . '-abilities', function () {
             return $this->abilities()->pluck('system_abilities.name')->toArray();
         });
     }
@@ -356,7 +357,7 @@ class SystemUser extends Authenticatable
      */
     protected function getUserPermissions(): array
     {
-        return cache()->rememberForever($this->id . '-permissions', function () {
+        return Cache::rememberForever($this->id . '-permissions', function () {
             $results = [];
 
             foreach ($this->abilities()->with(['permissions'])->get() as $ability) {

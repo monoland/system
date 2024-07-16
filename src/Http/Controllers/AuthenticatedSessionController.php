@@ -96,7 +96,7 @@ class AuthenticatedSessionController extends Controller
         ])->save();
 
         $request->user()->notify(new UserLogged($request->user()));
-        
+
         return response()->json();
     }
 
