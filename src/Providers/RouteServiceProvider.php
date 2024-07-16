@@ -3,6 +3,7 @@
 namespace Module\System\Providers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 
@@ -47,7 +48,7 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace('Module\System\Http\Controllers')
             ->group(__DIR__ . '/../../routes/account-web.php');
 
-        $domain = cache()->rememberForever('system-domain', function () {
+        $domain = Cache::rememberForever('system-domain', function () {
             try {
                 return optional(DB::table('system_modules')->where('slug', 'system')->first())->domain ?: 'backend';
             } catch (\Exception $e) {
@@ -55,7 +56,7 @@ class RouteServiceProvider extends ServiceProvider
             }
         });
 
-        $prefix = cache()->rememberForever('system-prefix', function () {
+        $prefix = Cache::rememberForever('system-prefix', function () {
             try {
                 return optional(DB::table('system_modules')->where('slug', 'system')->first())->prefix ?: null;
             } catch (\Exception $e) {
@@ -85,7 +86,7 @@ class RouteServiceProvider extends ServiceProvider
             ->namespace('Module\System\Http\Controllers')
             ->group(__DIR__ . '/../../routes/account-api.php');
 
-        $domain = cache()->rememberForever('system-domain', function () {
+        $domain = Cache::rememberForever('system-domain', function () {
             try {
                 return optional(DB::table('system_modules')->where('slug', 'system')->first())->domain ?: 'backend';
             } catch (\Exception $e) {
@@ -93,7 +94,7 @@ class RouteServiceProvider extends ServiceProvider
             }
         });
 
-        $prefix = cache()->rememberForever('system-prefix', function () {
+        $prefix = Cache::rememberForever('system-prefix', function () {
             try {
                 return optional(DB::table('system_modules')->where('slug', 'system')->first())->prefix ?: null;
             } catch (\Exception $e) {

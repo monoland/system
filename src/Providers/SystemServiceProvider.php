@@ -10,7 +10,11 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use Module\System\Actions\Fortify\CreateNewUser;
 use Module\System\Models\SystemPersonalAccessToken;
+use Module\System\Actions\Fortify\ResetUserPassword;
+use Module\System\Actions\Fortify\UpdateUserPassword;
+use Module\System\Actions\Fortify\UpdateUserProfileInformation;
 
 class SystemServiceProvider extends ServiceProvider
 {
@@ -22,6 +26,11 @@ class SystemServiceProvider extends ServiceProvider
     public function boot()
     {
         Sanctum::usePersonalAccessTokenModel(SystemPersonalAccessToken::class);
+
+        Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
