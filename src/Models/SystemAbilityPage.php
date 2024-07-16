@@ -87,7 +87,7 @@ class SystemAbilityPage extends Model
             'module_id' => $model->module_id,
 
             'page_id' => $model->page_id,
-            'page_parent' => optional(optional($model->page)->parent)->name,
+            'page_parent' => optional(optional($model->page)->parent)->path ?: '/',
             'page_path' => optional($model->page)->path,
             
             'updated_at' => (string) $model->updated_at,

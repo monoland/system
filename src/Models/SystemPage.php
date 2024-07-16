@@ -60,7 +60,7 @@ class SystemPage extends Model
      *
      * @var string
      */
-    protected $defaultOrder = '_lft';
+    protected $defaultOrder = ['_lft', 'parent_id'];
 
     /**
      * getPageTitle function
@@ -70,7 +70,7 @@ class SystemPage extends Model
      */
     public static function getPageTitle(Request $request, $slug): string | null
     {
-        return Cache::remember(implode("_", $request->segments()), now()->addMinute(5),function () use ($request) {
+        return Cache::remember(implode("_", $request->segments()), now()->addMinute(5), function () use ($request) {
             return "Module:" . SystemModule::find($request->segment(4))->name;
         });
     }
@@ -90,6 +90,7 @@ class SystemPage extends Model
             'title' => $model->title,
             'icon' => $model->icon,
             'path' => $model->path,
+            'parent_name' => optional($model->parent)->path ?: '/',
             'updated_at' => (string) $model->updated_at,
         ];
     }

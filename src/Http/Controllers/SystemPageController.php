@@ -25,6 +25,7 @@ class SystemPageController extends Controller
         return new PageCollection(
             $systemModule
                 ->pages()
+                ->with(['parent'])
                 ->applyMode($request->trashed)
                 ->filter($request->filters)
                 ->search($request->findBy)
