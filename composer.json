@@ -1,23 +1,23 @@
 {
-    "name": "monosoft/module-system",
-    "description": "The monosoft module module",
-    "authors": [
-        {
-            "name": "monoland",
-            "email": "monoland.soft@gmail.com"
-        }
-    ],
-    "require": {
-        "php": "^8.0.2",
-        "kalnoy/nestedset": "*",
-        "laravel/fortify": "^1.21",
-        "maatwebsite/excel": "^3.1",
-        "guzzlehttp/guzzle": "^7.2"
-    },
-    "autoload": {
-        "psr-4": {
-            "Module\\System\\": "src/",
-            "ModuleSystem\\Seeders\\": "database/seeders"
-        }
-    }
+	"name": "monosoft/module-system",
+	"description": "The monosoft module module",
+	"authors": [
+		{
+			"name": "monoland",
+			"email": "monoland.soft@gmail.com"
+		}
+	],
+	"require": {
+		"php": "^8.0.2",
+		"kalnoy/nestedset": "*",
+		"laravel/fortify": "^1.21",
+		"maatwebsite/excel": "^3.1",
+		"guzzlehttp/guzzle": "^7.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"Module\\System\\": "src/",
+			"ModuleSystem\\Seeders\\": "database/seeders"
+		}
+	}
 }

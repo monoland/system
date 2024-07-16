@@ -28,7 +28,7 @@ class SystemUserLog extends Model
      *
      * @var string|null
      */
-    protected $connection = 'datalog';
+    protected $connection = 'platform';
 
     /**
      * The table associated with the model.
