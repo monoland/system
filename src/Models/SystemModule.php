@@ -11,6 +11,7 @@ use Module\System\Traits\Searchable;
 use Module\System\Traits\HasPageSetup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Module\System\Http\Resources\ModuleResource;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SystemModule extends Model
@@ -78,6 +79,7 @@ class SystemModule extends Model
             'mobile' => $model->mobile,
             'enabled' => $model->enabled,
             'published' => $model->published,
+            'git_address' => $model->git_address,
             'updated_at' => (string) $model->updated_at,
         ];
     }
@@ -163,12 +165,12 @@ class SystemModule extends Model
         DB::connection($model->connection)->beginTransaction();
 
         try {
-            // ...
+            $model->git_address = $request->git_address;
             $model->save();
 
             DB::connection($model->connection)->commit();
 
-            // return new ModuleResource($model);
+            return new ModuleResource($model);
         } catch (\Exception $e) {
             DB::connection($model->connection)->rollBack();
 
