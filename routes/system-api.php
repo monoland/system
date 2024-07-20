@@ -19,6 +19,7 @@ Route::resource('auditor', SystemAuditorController::class)->parameters(['auditor
 
 Route::delete('module/{systemModule}/force', [SystemModuleController::class, 'forceDelete']);
 Route::put('module/{systemModule}/restore', [SystemModuleController::class, 'restore']);
+Route::get('module/{systemModule}/check-for-update', [SystemModuleController::class, 'checkForUpdate']);
 Route::resource('module', SystemModuleController::class)->parameters(['module' => 'systemModule']);
 
 Route::resource('module.ability', SystemAbilityController::class)->parameters(['module' => 'systemModule', 'ability' => 'systemAbility']);

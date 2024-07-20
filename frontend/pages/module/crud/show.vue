@@ -98,15 +98,17 @@
 			</v-card-text>
 		</template>
 
-		<template v-slot:helpdesk="{ theme }">
+		<template v-slot:helpdesk="{ record, theme }">
 			<div class="text-overline mt-4">Aksi</div>
 			<v-divider></v-divider>
 
 			<v-btn
 				class="mt-3"
 				:color="theme"
+				:loading="updateLoading"
 				block
 				variant="flat"
+				@click="checkForUpdate(record)"
 				>CHECK FOR UPDATE</v-btn
 			>
 
@@ -137,5 +139,18 @@
 <script>
 export default {
 	name: "system-module-show",
+
+	data: () => ({
+		updateLoading: false,
+	}),
+
+	methods: {
+		checkForUpdate: function (record) {
+			this.updateLoading = true;
+
+			this.$http(`system/api/module/${record.id}/check-for-update`);
+			//
+		},
+	},
 };
 </script>

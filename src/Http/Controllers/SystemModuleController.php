@@ -58,6 +58,31 @@ class SystemModuleController extends Controller
     }
 
     /**
+     * Undocumented function
+     *
+     * @param SystemModule $systemModule
+     * @return void
+     */
+    public function checkForUpdate(SystemModule $systemModule)
+    {
+        $gitAddress = $systemModule->git_address;
+        
+        return response()->json([
+            // true = update exists | false = its last update
+            'status' => true, 
+
+            // jika env == local, maka updated_version = last commit
+            // jika env == production, maka updated_version = last tag
+            'current_version' => '',
+            'updated_version' => '',
+
+            // jika env == local, maka updated_notes = commit message
+            // jika env == production, maka updated_notes = release note
+            'updated_notes' => null,
+        ], 200);
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
