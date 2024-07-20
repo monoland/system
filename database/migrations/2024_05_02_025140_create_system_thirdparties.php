@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_thirdparties', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
+            $table->string('name');
             $table->foreignId('role_id');
             $table->jsonb('meta')->nullable();
             $table->softDeletes();

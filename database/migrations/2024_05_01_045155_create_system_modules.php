@@ -13,14 +13,17 @@ return new class extends Migration
     {
         Schema::create('system_modules', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->unique();
-            $table->text('slug')->unique();
-            $table->text('icon');
-            $table->text('color')->default('blue-grey');
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->string('icon');
+            $table->string('color')->default('blue-grey');
             $table->enum('type', ['administrator', 'personal'])->default('administrator');
-            $table->text('domain')->index()->default('backend');
-            $table->text('prefix')->index()->nullable();
+            $table->string('domain')->index()->default('backend');
+            $table->string('prefix')->index()->nullable();
             $table->nullableMorphs('ownerable');
+            $table->string('git_address')->after('ownerable_id')->nullable();
+            $table->string('git_version')->after('git_address')->nullable();
+            $table->timestamp('git_updated_at')->after('git_version')->nullable();
             $table->jsonb('meta')->nullable();
             $table->boolean('desktop')->default(true);
             $table->boolean('mobile')->default(true);

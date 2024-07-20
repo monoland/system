@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_abilities', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->unique();
+            $table->string('name')->unique();
             $table->foreignId('module_id')
                 ->constrained('system_modules')
                 ->onDelete('cascade')

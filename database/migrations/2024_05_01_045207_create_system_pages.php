@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('system_pages', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->index();
-            $table->text('slug')->unique();
-            $table->text('title')->nullable();
-            $table->text('icon')->default('home');
-            $table->text('path')->index();
+            $table->string('name')->index();
+            $table->string('slug')->unique();
+            $table->string('title')->nullable();
+            $table->string('icon')->default('home');
+            $table->string('path')->index();
             $table->boolean('side')->default(false);
             $table->boolean('dock')->default(false);
             $table->boolean('enabled')->default(true);

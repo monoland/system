@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('system_operators', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('biodata_id')->unique();
+            $table->string('name');
+            $table->string('biodata_id')->unique();
             $table->foreignId('structural_id')->nullable();
             $table->foreignId('workunit_id')->nullable();
             $table->foreignId('role_id')->nullable();

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('system_polls', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('slug')->index();
+            $table->string('name');
+            $table->string('slug')->index();
             $table->foreignId('module_id')
                 ->constrained('system_modules')
                 ->onDelete('cascade')

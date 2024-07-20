@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('system_auditors', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
+            $table->string('name');
             $table->string('nik')->unique();
-            $table->text('address')->nullable();
+            $table->string('address')->nullable();
             $table->string('job')->nullable();
             $table->foreignId('role_id');
             $table->jsonb('meta')->nullable();

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('system_ability_pages', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->unique();
+            $table->string('name')->unique();
             $table->foreignId('ability_id')
                 ->constrained('system_abilities')
                 ->onDelete('cascade')

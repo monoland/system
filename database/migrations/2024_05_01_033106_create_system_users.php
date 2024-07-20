@@ -19,12 +19,12 @@ return new class () extends Migration {
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->timestamp('password_updated_at')->nullable();
-            $table->text('two_factor_secret')->nullable();
-            $table->text('two_factor_recovery_codes')->nullable();
+            $table->string('two_factor_secret')->nullable();
+            $table->string('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_confirmed_at')->nullable();
-            $table->text('avatar')->nullable();
-            $table->text('theme')->default('blue-grey');
-            $table->text('highlight')->default('yellow');
+            $table->string('avatar')->nullable();
+            $table->string('theme')->default('blue-grey');
+            $table->string('highlight')->default('yellow');
             $table->nullableMorphs('userable');
             $table->boolean('debuger')->default(false);
             $table->boolean('secured')->default(false);

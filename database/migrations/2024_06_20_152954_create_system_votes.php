@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('system_votes', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('slug')->index();
+            $table->string('name');
+            $table->string('slug')->index();
             $table->string('answer')->nullable()->index();
             $table->foreignId('poll_id')
                 ->constrained('system_polls')

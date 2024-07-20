@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('system_permissions', function (Blueprint $table) {
             $table->id();
-            $table->text('name');
-            $table->text('slug')->unique();
+            $table->string('name');
+            $table->string('slug')->unique();
             $table->foreignId('page_id')
                 ->constrained('system_pages')
                 ->onDelete('cascade')

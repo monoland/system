@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('system_roles', function (Blueprint $table) {
             $table->id();
-            $table->text('name')->unique();
-            $table->text('slug')->unique();
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
             $table->jsonb('meta')->nullable();
             $table->softDeletes();
             $table->timestamps();
