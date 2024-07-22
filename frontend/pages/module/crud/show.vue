@@ -112,8 +112,15 @@
 				</p>
 
 				<div class="mt-2">
-					<p class="text-caption">update version: v1.0.1</p>
-					<p class="text-caption">current version: v1.0.0</p>
+					<p class="text-caption">
+						update version: {{ record.updated_version }}
+					</p>
+					<p class="text-caption">
+						current version: {{ record.current_version }}
+					</p>
+					<p class="text-caption">
+						updated notes: {{ record.updated_notes }}
+					</p>
 				</div>
 			</v-card-text>
 
@@ -197,7 +204,11 @@ export default {
 			this.updateLoading = true;
 
 			this.$http(`system/api/module/${record.id}/check-for-update`).then(
-				() => {
+				(response) => {
+					this.updateStatus = response.status;
+					record.current_version = response.current_version;
+					record.updated_version = response.updated_version;
+					record.updated_notes = response.updated_notes;
 					this.updateLoading = false;
 					this.updateChecked = true;
 				}
