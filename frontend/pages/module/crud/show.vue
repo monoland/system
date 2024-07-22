@@ -132,7 +132,7 @@
 							:color="`${theme}-lighten-4`"
 							block
 							variant="flat"
-							@click="cancelUpdate(record)"
+							@click="cancelUpdate"
 							>Cancel</v-btn
 						>
 					</v-col>
@@ -203,17 +203,34 @@ export default {
 		checkForUpdate: function (record) {
 			this.updateLoading = true;
 
-			this.$http(`system/api/module/${record.id}/check-for-update`).then(
-				(response) => {
-					this.updateStatus = response.status;
+			this.$http(`system/api/module/${record.id}/check-for-update`)
+				.then((response) => {
 					record.current_version = response.current_version;
 					record.updated_version = response.updated_version;
 					record.updated_notes = response.updated_notes;
+
+					this.updateStatus = response.status;
 					this.updateLoading = false;
 					this.updateChecked = true;
-				}
-			);
-			//
+				})
+				.catch(() => {
+					this.updateLoading = false;
+				});
+		},
+
+		cancelUpdate: function () {
+			this.updateChecked = false;
+			this.updateStatus = false;
+		},
+
+		processUpdate: function (record) {
+			this.$http(`system/api/module/${record.id}/process-update`)
+				.then(() => {
+					//
+				})
+				.catch(() => {
+					//
+				});
 		},
 	},
 };

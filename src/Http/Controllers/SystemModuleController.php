@@ -89,6 +89,17 @@ class SystemModuleController extends Controller
     }
 
     /**
+     * processUpdate function
+     *
+     * @param SystemModule $systemModule
+     * @return void
+     */
+    public function processUpdate(SystemModule $systemModule)
+    {
+        // 
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
