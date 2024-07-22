@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Module\System\Models\SystemModule;
 use Module\System\Http\Resources\ModuleCollection;
 use Module\System\Http\Resources\ModuleShowResource;
+use Monoland\Platform\Services\PlatformModulesGit;
 
 class SystemModuleController extends Controller
 {
@@ -63,22 +64,27 @@ class SystemModuleController extends Controller
      * @param SystemModule $systemModule
      * @return void
      */
-    public function checkForUpdate(SystemModule $systemModule)
+    public function checkForUpdate(SystemModule $systemModule, PlatformModulesGit $modulesGit)
     {
         $gitAddress = $systemModule->git_address;
-        
+
+        $latest_log  = $modulesGit->getModuleCurrentLog('system', 'origin', 'main');
+        $current_log = $modulesGit->getModuleCurrentLog('system');
+        $latest_version  = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system', 'origin', 'main') : $modulesGit->getModuleCurrentTag('system', 'origin', 'main');
+        $current_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system') : $modulesGit->getModuleCurrentTag('system');
+
         return response()->json([
             // true = update exists | false = its last update
-            'status' => true, 
+            'status' => $current_log->unix_time < $latest_log->unix_time,
 
             // jika env == local, maka updated_version = last commit
             // jika env == production, maka updated_version = last tag
-            'current_version' => '',
-            'updated_version' => '',
+            'current_version' => $current_version,
+            'updated_version' => $latest_version,
 
             // jika env == local, maka updated_notes = commit message
             // jika env == production, maka updated_notes = release note
-            'updated_notes' => null,
+            'updated_notes' => $latest_log->body,
         ], 200);
     }
 
