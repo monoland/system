@@ -4,6 +4,8 @@ namespace Module\System\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Exception;
+use Illuminate\Process\Exceptions\ProcessFailedException;
 use Illuminate\Support\Facades\Gate;
 use Module\System\Models\SystemModule;
 use Module\System\Http\Resources\ModuleCollection;
@@ -67,25 +69,76 @@ class SystemModuleController extends Controller
     public function checkForUpdate(SystemModule $systemModule, PlatformModulesGit $modulesGit)
     {
         $gitAddress = $systemModule->git_address;
+        $slug = $systemModule->slug;
 
-        $latest_log  = $modulesGit->getModuleCurrentLog('system', 'origin', 'main');
-        $current_log = $modulesGit->getModuleCurrentLog('system');
-        $latest_version  = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system', 'origin', 'main') : $modulesGit->getModuleCurrentTag('system', 'origin', 'main');
-        $current_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system') : $modulesGit->getModuleCurrentTag('system');
+        try {
+            $modulesGit->fetchModule($slug);
+            $remotes = $modulesGit->getModuleRemotesAndBranch($slug);
+            $branch  = $remotes['origin'][0];
 
-        return response()->json([
-            // true = update exists | false = its last update
-            'status' => $current_log->unix_time < $latest_log->unix_time,
+            if (env('APP_ENV', 'local') == 'local') {
+                // Handling Local Mode
+                $current_log = $modulesGit->getModuleCurrentLog($slug);
+                $latest_log = $modulesGit->getModuleCurrentLog($slug, 'origin', $branch);
 
-            // jika env == local, maka updated_version = last commit
-            // jika env == production, maka updated_version = last tag
-            'current_version' => $current_version,
-            'updated_version' => $latest_version,
+                $latest_version = $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch);
+                $current_version = $modulesGit->getModuleCurrentCommit($slug);
 
-            // jika env == local, maka updated_notes = commit message
-            // jika env == production, maka updated_notes = release note
-            'updated_notes' => $latest_log->body,
-        ], 200);
+                return response()->json([
+                    // true = update exists | false = its last update
+                    'status' => $current_log->unix_time < $latest_log->unix_time,
+
+                    // jika env == local, maka updated_version = last commit
+                    // jika env == production, maka updated_version = last tag
+                    'current_version' => $current_version,
+                    'updated_version' => $latest_version,
+
+                    // jika env == local, maka updated_notes = commit message
+                    // jika env == production, maka updated_notes = release note
+                    'updated_notes' => $latest_log->body,
+                ], 200);
+            } else {
+                // Handling Production Mode
+                $latest_tag = $modulesGit->getModuleLatestTag($slug);
+                $latest_log = !is_null($latest_tag) ? $modulesGit->getModuleGitLogByRef($slug, $latest_tag) : null;
+
+                // Handling Current Tag
+                $current_log = $modulesGit->getModuleCurrentLog($slug);
+                $current_tag = count($current_log->tags) > 0 ? $current_log->tags[0] : null;
+
+                // Handling Case Dimana latest_tag ada dan current_tag
+                $status = false;
+                $current_version = !is_null($current_tag) ? $current_tag : 'Not Found';
+                $latest_version = !is_null($latest_tag) ? $latest_tag : 'Not Found';
+                $body = !is_null($latest_log) ? $latest_log->body : 'No Notes';
+
+                if (!is_null($current_tag) && !is_null($latest_tag)) {
+                    $status = $current_tag == $latest_tag;
+                } else if (is_null($latest_tag) && !is_null($current_tag)) {
+                    throw new Exception('Apabila current_tag ada seharusnya latest_tag ada juga dong..');
+                } else if (!is_null($latest_tag) && is_null($current_tag)) {
+                    $status = true;
+                }
+
+                return response()->json([
+                    // true = update exists | false = its last update
+                    'status' => $status,
+
+                    // jika env == local, maka updated_version = last commit
+                    // jika env == production, maka updated_version = last tag
+                    'current_version' => $current_version,
+                    'updated_version' => $latest_version,
+
+                    // jika env == local, maka updated_notes = commit message
+                    // jika env == production, maka updated_notes = release note
+                    'updated_notes' => $body,
+                ], 200);
+            }
+        } catch (Exception $error) {
+            return response()->json([
+                'message' => $error->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -94,9 +147,30 @@ class SystemModuleController extends Controller
      * @param SystemModule $systemModule
      * @return void
      */
-    public function processUpdate(SystemModule $systemModule)
+    public function processUpdate(SystemModule $systemModule, PlatformModulesGit $modulesGit)
     {
-        // 
+        $gitAddress = $systemModule->git_address;
+        $slug = $systemModule->slug;
+
+        try {
+            // fetch and get remotes and branches
+            $modulesGit->fetchModule($slug);
+            $remotes = $modulesGit->getModuleRemotesAndBranch($slug);
+            $branch  = $remotes['origin'][0];
+
+            // get the latest version and checkout to it
+            $latest_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch) : $modulesGit->getModuleCurrentTag($slug, 'origin', $branch);
+            $modulesGit->checkoutModule($latest_version, 'system');
+
+            // get current latest   
+            $current_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system') : $modulesGit->getModuleCurrentTag('system');
+
+            return response()->json([], 200);
+        } catch (Exception $error) {
+            return response()->json([
+                'message' => $error->getMessage(),
+            ], 500);
+        }
     }
 
     /**

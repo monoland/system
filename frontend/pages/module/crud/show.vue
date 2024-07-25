@@ -224,9 +224,11 @@ export default {
 		},
 
 		processUpdate: function (record) {
-			this.$http(`system/api/module/${record.id}/process-update`)
-				.then(() => {
-					//
+			this.$http(`system/api/module/${record.id}/process-update`,{
+				method: "POST",				
+			})
+				.then((response) => {
+					console.log(response);
 				})
 				.catch(() => {
 					//
