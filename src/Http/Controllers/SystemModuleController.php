@@ -61,7 +61,7 @@ class SystemModuleController extends Controller
     }
 
     /**
-     * Undocumented function
+     * checkForUpdate function
      *
      * @param SystemModule $systemModule
      * @return void
@@ -153,19 +153,72 @@ class SystemModuleController extends Controller
         $slug = $systemModule->slug;
 
         try {
-            // fetch and get remotes and branches
             $modulesGit->fetchModule($slug);
             $remotes = $modulesGit->getModuleRemotesAndBranch($slug);
             $branch  = $remotes['origin'][0];
 
-            // get the latest version and checkout to it
-            $latest_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch) : $modulesGit->getModuleCurrentTag($slug, 'origin', $branch);
-            $modulesGit->checkoutModule($latest_version, 'system');
+            if (env('APP_ENV', 'local') == 'local') {
+                // Handling Local Mode
+                $latest_log = $modulesGit->getModuleCurrentLog($slug, 'origin', $branch);
+                $latest_version = $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch);
 
-            // get current latest   
-            $current_version = env('APP_ENV', 'local') == 'local' ? $modulesGit->getModuleCurrentCommit('system') : $modulesGit->getModuleCurrentTag('system');
+                // do checkout module
+                $modulesGit->checkoutModule($latest_version, $slug);
 
-            return response()->json([], 200);
+                // check current if its change or not
+                $current_log = $modulesGit->getModuleCurrentLog($slug);
+                $current_version = $modulesGit->getModuleCurrentCommit($slug);
+
+                return response()->json([
+                    // true = update exists | false = its last update
+                    'status' => $current_log->unix_time < $latest_log->unix_time,
+
+                    // jika env == local, maka updated_version = last commit
+                    // jika env == production, maka updated_version = last tag
+                    'current_version' => $current_version,
+                    'updated_version' => $latest_version,
+
+                    // jika env == local, maka updated_notes = commit message
+                    // jika env == production, maka updated_notes = release note
+                    'updated_notes' => $latest_log->body,
+                ], 200);
+            } else {
+                // Handling Production Mode
+                $latest_tag = $modulesGit->getModuleLatestTag($slug);
+                $latest_log = !is_null($latest_tag) ? $modulesGit->getModuleGitLogByRef($slug, $latest_tag) : null;
+
+                // Handling update not found
+                if (is_null($latest_tag)) {
+                    throw new Exception("There're no updated found");
+                }
+
+                // do checkout module
+                $modulesGit->checkoutModule($latest_tag, $slug);
+
+                // Handling Current Tag
+                $current_log = $modulesGit->getModuleCurrentLog($slug);
+                $current_tag = count($current_log->tags) > 0 ? $current_log->tags[0] : null;
+
+                // Handling Case Dimana latest_tag ada dan current_tag
+                $status = $current_log->commit == $latest_log->commit;
+                $current_version = !is_null($current_tag) ? $current_tag : 'Not Found';
+                $latest_version = !is_null($latest_tag) ? $latest_tag : 'Not Found';
+                $body = !is_null($latest_log) ? $latest_log->body : 'No Notes';
+
+                return response()->json([
+                    // true = update exists | false = its last update
+                    'status' => $status,
+
+                    // jika env == local, maka updated_version = last commit
+                    // jika env == production, maka updated_version = last tag
+                    'current_version' => $current_version,
+                    'updated_version' => $latest_version,
+
+                    // jika env == local, maka updated_notes = commit message
+                    // jika env == production, maka updated_notes = release note
+                    'updated_notes' => $body,
+                ], 200);
+            }
         } catch (Exception $error) {
             return response()->json([
                 'message' => $error->getMessage(),
