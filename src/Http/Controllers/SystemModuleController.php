@@ -113,7 +113,7 @@ class SystemModuleController extends Controller
                 $body = !is_null($latest_log) ? $latest_log->body : 'No Notes';
 
                 if (!is_null($current_tag) && !is_null($latest_tag)) {
-                    $status = $current_tag == $latest_tag;
+                    $status = $current_log->commit != $latest_log->commit;
                 } else if (is_null($latest_tag) && !is_null($current_tag)) {
                     throw new Exception('Apabila current_tag ada seharusnya latest_tag ada juga dong..');
                 } else if (!is_null($latest_tag) && is_null($current_tag)) {
@@ -171,7 +171,7 @@ class SystemModuleController extends Controller
 
                 return response()->json([
                     // true = update exists | false = its last update
-                    'status' => $current_log->unix_time < $latest_log->unix_time,
+                    'status' => $current_log->commit == $latest_log->commit,
 
                     // jika env == local, maka updated_version = last commit
                     // jika env == production, maka updated_version = last tag
@@ -188,8 +188,12 @@ class SystemModuleController extends Controller
                 $latest_log = !is_null($latest_tag) ? $modulesGit->getModuleGitLogByRef($slug, $latest_tag) : null;
 
                 // Handling update not found
+                // should always appear because it should return either latest_tag or current_tag
                 if (is_null($latest_tag)) {
-                    throw new Exception("There're no updated found");
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Latest tag not found'
+                    ], 200);
                 }
 
                 // do checkout module
