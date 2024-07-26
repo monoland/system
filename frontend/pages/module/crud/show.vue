@@ -107,6 +107,30 @@
 				v-if="updateChecked"
 			>
 				<p v-if="updateStatus"><strong>Update Is Available</strong></p>
+				
+				<p v-else>
+					<strong>module {{ record.name }} is up to date.</strong>
+				</p>
+
+				<div class="mt-2">
+					<p class="text-caption">
+						update version: {{ record.updated_version }}
+					</p>
+					<p class="text-caption">
+						current version: {{ record.current_version }}
+					</p>
+					<p class="text-caption">
+						updated notes: {{ record.updated_notes }}
+					</p>
+				</div>
+			</v-card-text>
+
+			<v-card-text
+				:class="`bg-${theme}-lighten-5 rounded-lg mt-3`"
+				v-if="updateProcess"
+			>
+				<p v-if="updateStatus"><strong>Update Success</strong></p>
+				
 				<p v-else>
 					<strong>module {{ record.name }} is up to date.</strong>
 				</p>
@@ -197,18 +221,20 @@ export default {
 		updateLoading: false,
 		updateStatus: false,
 		updateChecked: false,
+		updateProcess: false,
 	}),
 
 	methods: {
 		checkForUpdate: function (record) {
 			this.updateLoading = true;
-
+			this.updateProcess = false;
+			this.updateStatus = false;
 			this.$http(`system/api/module/${record.id}/check-for-update`)
 				.then((response) => {
 					record.current_version = response.current_version;
 					record.updated_version = response.updated_version;
 					record.updated_notes = response.updated_notes;
-
+					
 					this.updateStatus = response.status;
 					this.updateLoading = false;
 					this.updateChecked = true;
@@ -224,14 +250,23 @@ export default {
 		},
 
 		processUpdate: function (record) {
+			this.updateLoading = true;
+			this.updateChecked = false;
+			this.updateStatus = false;
 			this.$http(`system/api/module/${record.id}/process-update`,{
 				method: "POST",				
 			})
 				.then((response) => {
-					console.log(response);
+					record.current_version = response.current_version;
+					record.updated_version = response.updated_version;
+					record.updated_notes = response.updated_notes;
+					
+					this.updateStatus = response.status;
+					this.updateLoading = false;
+					this.updateProcess = true;
 				})
 				.catch(() => {
-					//
+					this.updateLoading = false;			
 				});
 		},
 	},
