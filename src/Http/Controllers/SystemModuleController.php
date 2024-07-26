@@ -61,6 +61,21 @@ class SystemModuleController extends Controller
     }
 
     /**
+     * debug function
+     *
+     * @param SystemModule $systemModule
+     * @return void
+     */
+    public function debug(SystemModule $systemModule, PlatformModulesGit $modulesGit)
+    {
+        $gitAddress = $systemModule->git_address;
+        $slug = $systemModule->slug;
+        $remotes = $modulesGit->getModuleRemoteAndBranch($slug);
+        dd($remotes);
+        $branch  = $remotes['origin'][0];
+    }
+
+    /**
      * checkForUpdate function
      *
      * @param SystemModule $systemModule
@@ -73,15 +88,18 @@ class SystemModuleController extends Controller
 
         try {
             $modulesGit->fetchModule($slug);
-            $remotes = $modulesGit->getModuleRemotesAndBranch($slug);
-            $branch  = $remotes['origin'][0];
+
+            // filter remotes refs
+            $refs = $modulesGit->getModuleRemoteAndBranch($slug);
+            $remote = $refs[0];
+            $branch = $refs[1];
 
             if (env('APP_ENV', 'local') == 'local') {
                 // Handling Local Mode
                 $current_log = $modulesGit->getModuleCurrentLog($slug);
-                $latest_log = $modulesGit->getModuleCurrentLog($slug, 'origin', $branch);
+                $latest_log = $modulesGit->getModuleCurrentLog($slug, $remote, $branch);
 
-                $latest_version = $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch);
+                $latest_version = $modulesGit->getModuleCurrentCommit($slug, $remote, $branch);
                 $current_version = $modulesGit->getModuleCurrentCommit($slug);
 
                 return response()->json([
@@ -154,13 +172,15 @@ class SystemModuleController extends Controller
 
         try {
             $modulesGit->fetchModule($slug);
-            $remotes = $modulesGit->getModuleRemotesAndBranch($slug);
-            $branch  = $remotes['origin'][0];
+            // filter remotes refs
+            $refs = $modulesGit->getModuleRemoteAndBranch($slug);
+            $remote = $refs[0];
+            $branch = $refs[1];
 
             if (env('APP_ENV', 'local') == 'local') {
                 // Handling Local Mode
-                $latest_log = $modulesGit->getModuleCurrentLog($slug, 'origin', $branch);
-                $latest_version = $modulesGit->getModuleCurrentCommit($slug, 'origin', $branch);
+                $latest_log = $modulesGit->getModuleCurrentLog($slug, $remote, $branch);
+                $latest_version = $modulesGit->getModuleCurrentCommit($slug, $remote, $branch);
 
                 // do checkout module
                 $modulesGit->checkoutModule($latest_version, $slug);
