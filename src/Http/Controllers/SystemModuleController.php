@@ -61,21 +61,6 @@ class SystemModuleController extends Controller
     }
 
     /**
-     * debug function
-     *
-     * @param SystemModule $systemModule
-     * @return void
-     */
-    public function debug(SystemModule $systemModule, PlatformModulesGit $modulesGit)
-    {
-        $gitAddress = $systemModule->git_address;
-        $slug = $systemModule->slug;
-        $remotes = $modulesGit->getModuleRemoteAndBranch($slug);
-        dd($remotes);
-        $branch  = $remotes['origin'][0];
-    }
-
-    /**
      * checkForUpdate function
      *
      * @param SystemModule $systemModule
